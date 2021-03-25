@@ -7,10 +7,8 @@ import ui
 print(dcc.__version__)
 
 app.layout = html.Div([
-    # represents the URL bar, doesn't render anything
     dcc.Location(id='url', refresh=False),
-
-    # content will be rendered in this element
+    html.Div(id='extra-content', className='fixed'),
     html.Div(id='page-content', className='w-screen h-screen', children=[
         ui.home_page
     ])

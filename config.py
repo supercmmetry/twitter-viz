@@ -1,4 +1,9 @@
-consumer_key = "xc58kjx3gN2wkLINvIQg3iatC"
-consumer_secret = "cSP8WlqSoX7s5uxTmf8DSJ3TD2QABlt75Ra9aZqyNZOvOsJkFE"
-access_token = "1293129081106493444-qBccILvS44pwjgyJqviIiWTXHbarxx"
-access_token_secret = "W8h8w1kqVcFzyM195l5P8po1fqLh303fQRMGkroZcrjyk"
+import os
+import dotenv
+
+dotenv.load_dotenv()
+
+consumer_key = os.environ['TWITTER_CONSUMER_KEY']
+consumer_secret = os.environ['TWITTER_CONSUMER_SECRET']
+access_token = os.environ['TWITTER_ACCESS_TOKEN']
+access_token_secret = os.environ['TWITTER_ACCESS_TOKEN_SECRET']

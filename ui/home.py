@@ -1,33 +1,68 @@
-import dash
+import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
+
+import controllers
 from deps import app
+from ui.components.tweet import tweet_list_component, tweet_cytoscape_component
+
+tweet_controller = controllers.TweetController()
 
 
 def appbar():
     return html.Div([
         html.Button(
             html.Span('Twitter-Viz', className='text-lg font-bold text-white whitespace-nowrap'),
-            className='float-left mt-2.5 ml-2.5 p-1.5 border-0 bg-blue-700 rounded-md w-min '
+            className='h-11 mt-2.5 ml-2.5 p-1.5 border-0 bg-blue-700 rounded-md w-min '
                       'outline-none focus:outline-none transition-all hover:bg-blue-600',
-            id='appbar-button'
+            id='home-appbar-button'
+        ),
+        dcc.Input(
+            id='home-query',
+            className='ml-4 mt-2.5 h-11 bg-blue-700 hover:bg-blue-600 text-white border-0 rounded-md p-1 '
+                      'font-bold placeholder-white transition-all',
+            placeholder='Enter query',
+        ),
+        dcc.Input(
+            id='home-query-limit',
+            className='ml-4 mt-2.5 h-11 bg-blue-700 hover:bg-blue-600 text-white border-0 rounded-md p-1 '
+                      'font-bold placeholder-white transition-all',
+            placeholder='Enter query limit',
         )
-    ], className='w-full h-16 bg-blue-100 select-none')
+    ],
+        className='w-full h-16 bg-blue-100 select-none flex'
+    )
+
+
+def body():
+    return html.Div([
+        html.Div([], id='home-body-tweet-list'),
+        html.Div([
+            html.Div([], id='home-body-graphs-tweets'),
+        ], id='home-body-graphs', className='ml-2 flex-col')
+    ],
+        id='home-body',
+        className='ml-2 mt-2 flex'
+    )
 
 
 @app.callback(
-    [Output('appbar-button', 'value')],
-    [Input('appbar-button', 'n_clicks')]
+    [Output('home-body-tweet-list', 'children'), Output('home-body-graphs-tweets', 'children')],
+    [Input('home-appbar-button', 'n_clicks')],
+    [State('home-query', 'value'), State('home-query-limit', 'value')],
+    prevent_initial_call=True
 )
-def on_appbar_button_click(n_clicks: int):
-    if n_clicks is not None and n_clicks > 0:
-        print('appbar button clicked!')
-    return [None]
+def on_appbar_button_click(n_clicks: int, query: str, limit: str):
+    tweet_controller.twint_query(query, int(limit))
+    tweet_controller.load_hash_tags()
+
+    return tweet_list_component(tweet_controller), tweet_cytoscape_component(tweet_controller)
 
 
 def page():
     return html.Div([
-        appbar()
+        appbar(),
+        body()
     ])
 
 
