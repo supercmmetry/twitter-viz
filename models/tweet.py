@@ -4,6 +4,8 @@ import twint
 class TweetModel:
     @staticmethod
     def __twint_to_pandas():
+        if twint.run.output.panda.Tweets_df is None:
+            return None
         return twint.run.output.panda.Tweets_df[twint.run.output.panda.Tweets_df.columns]
 
     def __init__(self):

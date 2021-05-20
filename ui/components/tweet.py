@@ -1,11 +1,14 @@
-import dash_core_components as dcc
 import dash_cytoscape as cyto
 import dash_html_components as html
 import networkx as nx
-import plotly.graph_objects as go
+from dash.dependencies import Output, Input
 
+from controller_deps import user_controller
 from controllers import TweetController
+from deps import app
 from models import TweetModel
+from ui.components.hash_tag_info import hash_tag_info_component
+from ui.components.user_info import user_info_component
 
 
 def tweet_component(tweet: TweetModel):
@@ -24,7 +27,7 @@ def tweet_list_component(controller: TweetController):
         tweet_component(obj)
         for obj in controller.tweets
     ],
-        className='w-3/12 overflow-y-auto border-2 rounded-md p-2 border-blue-700',
+        className='w-4/12 overflow-y-auto border-2 rounded-md p-2 border-blue-700',
         style={
             'height': 'calc(100vh - 6rem)'
         }
@@ -41,7 +44,8 @@ def tweet_cytoscape_component(controller: TweetController):
         cyto_nodes.append({
             'data': {
                 'id': tweet.user_name,
-                'label': tweet.user_name
+                'label': tweet.user_name,
+                'type': 'user'
             },
             'classes': 'user',
         })
@@ -51,7 +55,8 @@ def tweet_cytoscape_component(controller: TweetController):
         cyto_nodes.append({
             'data': {
                 'id': hash_tag,
-                'label': hash_tag
+                'label': hash_tag,
+                'type': 'hashtag'
             },
             'classes': 'hashtag',
         })
@@ -72,15 +77,15 @@ def tweet_cytoscape_component(controller: TweetController):
     index = 0
     for node in graph.nodes():
         x, y = pos_layout[node]
-        x *= 400
-        y *= 400
+        x *= 800
+        y *= 500
         cyto_nodes[index]['position'] = {'x': x, 'y': y}
         index += 1
 
     cytoscape = cyto.Cytoscape(
         id='home-body-graphs-tweets-cytoscape',
         layout={'name': 'preset'},
-        style={'width': '40vw', 'height': '40vh'},
+        style={'width': '60vw', 'height': '40vh'},
         elements=cyto_nodes + cyto_edges,
         stylesheet=[
             {
@@ -120,3 +125,17 @@ def tweet_cytoscape_component(controller: TweetController):
                   className='mt-1 mb-2 text-md font-bold text-white border-0 rounded-md bg-blue-700 p-2'),
         cytoscape
     ], className='p-2 mt-1 mr-1 border-2 rounded-md border-blue-700')
+
+
+@app.callback(
+    [Output('home-body-user-info', 'children')],
+    [Input('home-body-graphs-tweets-cytoscape', 'tapNodeData')],
+    prevent_initial_call=True
+)
+def on_user_node_click(data):
+    if data is None:
+        return ['']
+    if data['type'] == 'user':
+        return [user_info_component(user_controller, data['id'])]
+    else:
+        return [hash_tag_info_component(user_controller, data['id'])]

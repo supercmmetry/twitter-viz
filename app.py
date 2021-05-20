@@ -1,8 +1,8 @@
-import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from deps import app
+
 import ui
+from deps import app
 
 print(dcc.__version__)
 
@@ -13,7 +13,6 @@ app.layout = html.Div([
         ui.home_page
     ])
 ])
-
 
 if __name__ == '__main__':
     app.run_server(debug=True)

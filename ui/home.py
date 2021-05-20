@@ -2,11 +2,9 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
-import controllers
+from controller_deps import tweet_controller, user_controller
 from deps import app
 from ui.components.tweet import tweet_list_component, tweet_cytoscape_component
-
-tweet_controller = controllers.TweetController()
 
 
 def appbar():
@@ -39,6 +37,7 @@ def body():
         html.Div([], id='home-body-tweet-list'),
         html.Div([
             html.Div([], id='home-body-graphs-tweets'),
+            html.Div([], id='home-body-user-info', className='mt-2'),
         ], id='home-body-graphs', className='ml-2 flex-col')
     ],
         id='home-body',
@@ -55,6 +54,9 @@ def body():
 def on_appbar_button_click(n_clicks: int, query: str, limit: str):
     tweet_controller.twint_query(query, int(limit))
     tweet_controller.load_hash_tags()
+
+    user_controller.load_from_tweets(tweet_controller.tweets)
+    user_controller.load_hash_to_user_dict()
 
     return tweet_list_component(tweet_controller), tweet_cytoscape_component(tweet_controller)
 
